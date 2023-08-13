@@ -1,9 +1,5 @@
 import os
 
-
-os.environ["OPENAI_API_KEY"] = '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'
-
-
 class ChatBot:
     def __init__(self):
         self.instruction = """Ты - чат-бот на сайте, твоя функция помогать. Отвечай развернуто, вежливо. Если уместно,
