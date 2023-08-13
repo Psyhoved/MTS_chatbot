@@ -13,8 +13,6 @@ class ChatBot:
 
     def ask_bot(self, context, promt: str):
         while True:
-            if 'привет' in promt.lower():
-                return 'Здарова! Как сам?'
             query_engine = context.as_query_engine()
             try:
                 response = query_engine.query(self.instruction + promt)
