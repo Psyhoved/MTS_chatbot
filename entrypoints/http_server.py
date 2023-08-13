@@ -44,7 +44,7 @@ async def hello():
 @app.get('/get_promt', response_model=ChatBotResponse)
 async def get_promt(promt: str) -> ChatBotResponse:
     """
-
+    Функция, отправляющая контекст (обучение) и промт (вопрос пользователя) в API chat-gpt и возвращающая ответ.
     :param promt: Запрос пользователя для чат-бота
     :type promt: str
     :return: Ответ чат-бота
@@ -60,3 +60,4 @@ async def get_promt(promt: str) -> ChatBotResponse:
         response.MTS_chatbot = found
 
     return response
+
