@@ -8,7 +8,7 @@ from libs.http_actions.responses import ChatBotResponse
 
 app = FastAPI()
 root_dir = Path(__file__).parent.parent.absolute()
-input_index = f"{root_dir}\index.json"
+input_index = Path(root_dir, "index.json")
 
 
 def custom_openapi():
@@ -27,9 +27,10 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 bot = ChatBot()
-storage_context = StorageContext.from_defaults(persist_dir=input_index)
+storage_context = StorageContext.from_defaults(persist_dir=str(input_index))
 # load index
 index = load_index_from_storage(storage_context)
+
 
 @app.get('/')
 async def hello():
