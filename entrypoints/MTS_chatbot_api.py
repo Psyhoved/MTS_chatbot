@@ -13,6 +13,8 @@ class ChatBot:
 
     def ask_bot(self, context, promt: str):
         while True:
+            if 'привет' in promt.lower():
+                return 'Здарова! Как сам?'
             query_engine = context.as_query_engine()
             try:
                 response = query_engine.query(self.instruction + promt)
@@ -21,11 +23,10 @@ class ChatBot:
                 return response
 
             if not response.response or response.response == 'Empty Response':
-                print(
-                    "\nAI-помощник от МТС: Не понял Вашего вопроса. Напишите, пожалуйста, точнее, чтобы Вы хотели узнать.\n")
+                return "Не понял Вашего вопроса. Напишите, пожалуйста, точнее, чтобы Вы хотели узнать."
             else:
-                print("\nAI-помощник от МТС: " + response.response + "\n")
                 self.instruction = promt + ' ' + response.response + ' '
+                return response.response
 
 
 
