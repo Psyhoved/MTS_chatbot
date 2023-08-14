@@ -46,7 +46,7 @@ function wrapBotMessage(message) {
 
 // Gets the first message
 function firstBotMessage() {
-    let firstMessage = "Я Света - нейросетевой ассистент по услугам МТС. Вы можете задавать мне вопросы об услугах МТС"
+    let firstMessage = "Здравствуйте! Меня зовут Светлана. Я — нейросетевой ассистент по услугам МТС. Буду рада помочь вам разобраться в услуге \"Мобильные сотрудники\""
     document.getElementById("botStarterMessage").innerHTML = wrapBotMessage(firstMessage);
 
     let time = getTime();
