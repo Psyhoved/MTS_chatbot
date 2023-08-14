@@ -19,7 +19,7 @@ class ChatBot:
         if not response.response or response.response == 'Empty Response':
             return "Не понял Вашего вопроса. Напишите, пожалуйста, точнее, чтобы Вы хотели узнать."
         else:
-            self.instruction = promt + ' ' + response.response + ' '
+            # self.instruction = promt + ' ' + response.response + ' '
             return response.response
 
 
