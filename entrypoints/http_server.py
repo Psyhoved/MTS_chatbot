@@ -28,8 +28,6 @@ app.openapi = custom_openapi
 
 bot = ChatBot()
 storage_context = StorageContext.from_defaults(persist_dir=str(input_index))
-# load index
-# index = load_index_from_storage(storage_context)
 
 
 @app.get('/')
@@ -52,7 +50,9 @@ async def generate_bot_response(promt: str) -> ChatBotResponse:
     :rtype: ChatBotResponse[str]
     """
     response = ChatBotResponse()
+    # load index
     index = load_index_from_storage(storage_context)
+
     found = bot.ask_bot(context=index, promt=promt)
 
     if found is None or len(found) == 0:
