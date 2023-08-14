@@ -29,14 +29,25 @@ function getTime() {
         minutes = "0" + minutes;
     }
 
-    let time = hours + ":" + minutes;
-    return time;
+    return hours + ":" + minutes;
+}
+
+function wrapChatText(message, type) {
+    return '<p class="' + type + '"><span>' + message + '</span></p>'
+}
+
+function wrapUserMessage(message) {
+    return wrapChatText(message, 'userText')
+}
+
+function wrapBotMessage(message) {
+    return wrapChatText(message, 'botText')
 }
 
 // Gets the first message
 function firstBotMessage() {
     let firstMessage = "Я Света - нейросетевой ассистент по услугам МТС. Вы можете задавать мне вопросы об услугах МТС"
-    document.getElementById("botStarterMessage").innerHTML = '<p class="botText"><span>' + firstMessage + '</span></p>';
+    document.getElementById("botStarterMessage").innerHTML = wrapBotMessage(firstMessage);
 
     let time = getTime();
 
@@ -47,55 +58,38 @@ function firstBotMessage() {
 firstBotMessage();
 
 // Retrieves the response
-function getHardResponse(userText) {
-    let botResponse = getBotResponse(userText);
-    let botHtml = '<p class="botText"><span>' + botResponse + '</span></p>';
-    $("#chatbox").append(botHtml);
-
+function handleBotResponse(botResponse) {
+    $("#chatbox").append(wrapBotMessage(botResponse));
     document.getElementById("chat-bar-bottom").scrollIntoView(true);
 }
 
-//Gets the text text from the input box and processes it
-function getResponse() {
+//Gets the text from the input box and processes it
+function proceedUserMessage() {
     let userText = $("#textInput").val();
 
-    if (userText == "") {
-        userText = "Расскажи еще об услуге";
+    if (userText === "") {
+        return
     }
 
-    let userHtml = '<p class="userText"><span>' + userText + '</span></p>';
+    let userHtml = wrapUserMessage(userText);
 
     $("#textInput").val("");
     $("#chatbox").append(userHtml);
     document.getElementById("chat-bar-bottom").scrollIntoView(true);
 
     setTimeout(() => {
-        getHardResponse(userText);
+        getBotResponse(userText);
     }, 1000)
 
 }
 
-// Handles sending text via button clicks
-function buttonSendText(sampleText) {
-    let userHtml = '<p class="userText"><span>' + sampleText + '</span></p>';
-
-    $("#textInput").val("");
-    $("#chatbox").append(userHtml);
-    document.getElementById("chat-bar-bottom").scrollIntoView(true);
-
-    //Uncomment this if you want the bot to respond to this buttonSendText event
-    // setTimeout(() => {
-    //     getHardResponse(sampleText);
-    // }, 1000)
-}
-
 function sendButton() {
-    getResponse();
+    proceedUserMessage();
 }
 
 // Press enter to send a message
 $("#textInput").keypress(function (e) {
     if (e.which == 13) {
-        getResponse();
+        proceedUserMessage();
     }
 });
