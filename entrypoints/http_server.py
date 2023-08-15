@@ -4,6 +4,7 @@ from llama_index import StorageContext, load_index_from_storage
 from pathlib import Path
 
 from entrypoints.MTS_chatbot_api import ChatBot
+from libs.http_actions.requests import BotRequest
 from libs.http_actions.responses import ChatBotResponse
 
 app = FastAPI()
@@ -41,19 +42,22 @@ async def hello():
 
 
 @app.post('/generate_bot_response', response_model=ChatBotResponse)
-async def generate_bot_response(promt: str) -> ChatBotResponse:
+async def generate_bot_response(request: BotRequest) -> ChatBotResponse:
     """
     Функция, отправляющая контекст (обучение) и промт (вопрос пользователя) в API chat-gpt и возвращающая ответ.
-    :param promt: Запрос пользователя для чат-бота
-    :type promt: str
+    :param request: Запрос пользователя для чат-бота
+    :type request: Request
     :return: Ответ чат-бота
     :rtype: ChatBotResponse[str]
     """
+
+    prompt = request.prompt
+
     response = ChatBotResponse()
     # load index
     index = load_index_from_storage(storage_context)
 
-    found = bot.ask_bot(context=index, promt=promt)
+    found = bot.ask_bot(context=index, promt=prompt)
 
     if found is None or len(found) == 0:
         response.MTS_chatbot = 'Не удалось получить ответ на Ваш вопрос :( Попробуйте снова!'
@@ -61,4 +65,3 @@ async def generate_bot_response(promt: str) -> ChatBotResponse:
         response.MTS_chatbot = found
 
     return response
-

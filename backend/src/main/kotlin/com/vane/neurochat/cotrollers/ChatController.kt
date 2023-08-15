@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
-import java.net.URLEncoder
 
 private const val defaultBotResponse = "Не получилось сформировать ответ"
 
@@ -38,12 +37,14 @@ class ChatController(
 
     fun getBotResponse(prompt: String): ChatbotAnswer {
         return try {
-            val encodedPrompt = URLEncoder.encode(prompt, "UTF-8")
-
-            val url = "$baseUrl/generate_bot_response?promt=$encodedPrompt"
+            val url = "$baseUrl/generate_bot_response"
             val headers = HttpHeaders()
             headers.set("accept", "application/json")
-            val entity = HttpEntity("", headers)
+            val entity = HttpEntity(
+                    object {
+                        val prompt = prompt
+                    },
+                    headers)
             val response = restTemplate.exchange(url, HttpMethod.POST, entity, ChatbotAnswer::class.java)
             log.info("Got response: ${response.body}")
 
