@@ -1,5 +1,8 @@
+import logging
 import re
 
+# Настройка логгера
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 def check_russian(text: str) -> bool:
     return bool(re.search('[а-яА-Я]', text))
@@ -18,7 +21,7 @@ class ChatBot:
     """
 
     def ask_bot(self, context, promt: str):
-        print(promt)
+        logging.info(promt)
         dop = ' Ответь на последний вопрос или позитивно поддержи диалог'
         query_engine = context.as_query_engine()
         try:
