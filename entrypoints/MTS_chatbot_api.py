@@ -10,9 +10,10 @@ class ChatBot:
     """
 
     def ask_bot(self, context, promt: str):
+        dop = ' Ответь на последний вопрос или позитивно поддержи диалог'
         query_engine = context.as_query_engine()
         try:
-            response = query_engine.query(self.instruction + promt)
+            response = query_engine.query(self.instruction + promt + dop)
         except Exception as e:
             response = f'К сожалению, не могу ответить на Ваш вопрос. Сервис недоступен: {e}'
             return response
