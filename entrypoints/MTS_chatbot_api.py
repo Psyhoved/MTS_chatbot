@@ -1,5 +1,6 @@
 import logging
 import re
+import urllib.parse
 
 # Настройка логгера
 logging.basicConfig(filename='app.log', level=logging.INFO,
@@ -22,9 +23,10 @@ class ChatBot:
     """
 
     def ask_bot(self, context, promt: str):
-        logging.info(f"То, что приходит: {promt}")
         dop = ' Ответь на последний вопрос или позитивно поддержи диалог'
         query_engine = context.as_query_engine()
+        promt = urllib.parse.unquote(promt)
+        logging.info(f"То, что приходит: {promt}")
         try:
             response = query_engine.query(self.instruction + promt + dop)
         except Exception as e:
