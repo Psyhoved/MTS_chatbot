@@ -1,14 +1,16 @@
-let history = ''
+let lastRequest = ''
+let lastResponse = ''
 
 function getBotResponse(input) {
 
-    request = "Клиент: " + input + "\n"
+    let newRequest = input
+    let history = lastRequest + "\n" + lastResponse + "\n"
 
     // Simple responses
     if (input === "testFront") {
         return "Проверка фронтенда";
     } else {
-        return postRequest("chat/getBotNextMessage", history, request);
+        return postRequest("chat/getBotNextMessage", history, newRequest);
         // return postRequest("chat/getBotNextMessage", input);
     }
 }
@@ -22,7 +24,11 @@ function postRequest(url, history, request) {
     xhr.onload = function () {
         if (xhr.status === 200) {
             const response = xhr.response['MTS_chatbot'];
-            history = "Помощник (Ты): " + response + "\n" + request
+            history = response + request
+
+            lastRequest = request
+            lastResponse = response
+
             handleBotResponse(response)
         } else {
             alert("Error: " + xhr.status);
