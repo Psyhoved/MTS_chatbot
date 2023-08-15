@@ -18,6 +18,7 @@ class ChatBot:
     """
 
     def ask_bot(self, context, promt: str):
+        print(promt)
         dop = ' Ответь на последний вопрос или позитивно поддержи диалог'
         query_engine = context.as_query_engine()
         try:
