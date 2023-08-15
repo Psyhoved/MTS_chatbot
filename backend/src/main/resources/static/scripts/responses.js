@@ -4,7 +4,7 @@ let lastResponse = ''
 function getBotResponse(input) {
 
     let newRequest = input
-    let history = lastRequest + "\n" + lastResponse + "\n"
+    let history = lastRequest + " " + lastResponse + " "
 
     // Simple responses
     if (input === "testFront") {
