@@ -13,6 +13,57 @@
 - Артефакт будет находиться по пути `backend/build/libs/neurochat-0.0.1-SNAPSHOT.jar`
 - Запустить приложение командой `java -jar neurochat-0.0.1-SNAPSHOT.jar`
 
+#### Запуск в виде сервиса
+
+Для непрерывной работы на виртуальной машине ubuntu удобно запускать uvicorn и лендинг как сервис под управлением
+systemd.
+
+пример настроек сервиса сервера uvicorn
+
+```
+[Unit]
+Description=Uvicorn server service
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+Group=admin
+
+Type=simple
+
+WorkingDirectory=/home/MTS_chatbot
+Environment="OPENAI_API_KEY=sk-*************************"
+ExecStart=/home/MTS_chatbot/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+пример настроек сервиса c лендингом
+
+```
+[Unit]
+Description=Chat landing page service
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+Group=admin
+
+Type=simple
+
+WorkingDirectory=/home/MTS_chatbot/java
+ExecStart=java -jar neurochat-0.0.1-SNAPSHOT.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
 ### О модели
 Чат-бот работает на основе API Open AI GPT-3.5 Turbo и векторизированного контекста (см. дообучение на данных контекста в [ноутбуке](https://github.com/Psyhoved/MTS_chatbot/blob/main/AI_chat_bot_for_MTS.ipynb)) 
 ### Выполнен в рамках [AI Generative Product Hackathon](https://ai-hackathon.gigaschool.ru/), проходившего 4-19 августа 2023
