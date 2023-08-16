@@ -1,4 +1,11 @@
 # Чат-бот для сервиса "Мобильные сотрудники" от МТС
+### Установка
+- Распаковать архив index.json-20230814T192851Z-001.zip, в нём контекст для тюна модели. 
+- Установить зависимости из 
+- Экспортировать ключ к API Open AI в переменную окружения OPENAI_API_KEY
+- Запустить сервер uvicorn командой `uvicorn entrypoints.http_server:app --host 0.0.0.0 --port 8000`
+### О модели
+Чат-бот работает на основе API Open AI GPT-3.5 Turbo и векторизированного контекста (см. дообучение на данных контекста в [ноутбуке](https://github.com/Psyhoved/MTS_chatbot/blob/main/AI_chat_bot_for_MTS.ipynb)) 
 ### Выполнен в рамках [AI Generative Product Hackathon](https://ai-hackathon.gigaschool.ru/), проходившего 4-19 августа 2023
 
 **Быстрый доступ** к макету чат-бота по [ссылке](http://158.160.4.169:8080/)
