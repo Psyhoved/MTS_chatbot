@@ -4,6 +4,14 @@
 - Установить зависимости из requirements.txt
 - Экспортировать ключ к API Open AI в переменную окружения OPENAI_API_KEY
 - Запустить сервер uvicorn командой `uvicorn entrypoints.http_server:app --host 0.0.0.0 --port 8000`
+
+#### Запуск лендинга (опционально)
+
+- Установить java 17
+- Собрать приложение из папки `backend` командой `gradle build`
+- Артефакт будет находиться по пути `backend/build/libs/neurochat-0.0.1-SNAPSHOT.jar`
+- Запустить приложение командой `java -jar neurochat-0.0.1-SNAPSHOT.jar`
+
 ### О модели
 Чат-бот работает на основе API Open AI GPT-3.5 Turbo и векторизированного контекста (см. дообучение на данных контекста в [ноутбуке](https://github.com/Psyhoved/MTS_chatbot/blob/main/AI_chat_bot_for_MTS.ipynb)) 
 ### Выполнен в рамках [AI Generative Product Hackathon](https://ai-hackathon.gigaschool.ru/), проходившего 4-19 августа 2023
