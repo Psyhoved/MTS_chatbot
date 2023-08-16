@@ -18,6 +18,7 @@
 ### Выполнен в рамках [AI Generative Product Hackathon](https://ai-hackathon.gigaschool.ru/), проходившего 4-19 августа 2023
 
 **Быстрый доступ** к макету чат-бота по [ссылке](http://158.160.4.169:8080/)
+![image](https://github.com/Psyhoved/MTS_chatbot/assets/83509449/719d6c6e-74ff-4441-bd60-6cbc143b8cc6)
 
 ### Команда - Hard work players
 ***Участники команды:***
