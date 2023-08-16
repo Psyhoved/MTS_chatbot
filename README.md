@@ -40,7 +40,7 @@
 
 [Лендинг](http://51.250.107.110:8080/) с чат-ботом
 
-Попробовать чат-бот в [Google Colab](https://github.com/Psyhoved/MTS_chatbot/blob/main/AI_chat_bot_for_MTS.ipynb)
+Попробовать чат-бот в [Google Colab]([https://github.com/Psyhoved/MTS_chatbot/blob/main/AI_chat_bot_for_MTS.ipynb](https://colab.research.google.com/drive/1ZfJKinM3zacxyM5tu3mcxuINLcoVJhrL?usp=sharing))
 
 Краткое описание:
 - Сначала, с помощью библиотеки llama-index и функции construct_index(), создается index, содеращий в себе векорное преставление контекста и скрытые prompts. 
