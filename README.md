@@ -1,4 +1,4 @@
-# Чат-бот для сервиса "Мобильные сотрудники" от МТС
+# [Чат-бот для сервиса "Мобильные сотрудники" от МТС](http://51.250.107.110:8080/) 
 ![image](https://github.com/Psyhoved/MTS_chatbot/assets/83509449/190b6098-a666-46b5-a4f9-3663ce81aff1)
 ### Установка
 - Распаковать архив index.json-20230814T192851Z-001.zip, в нём контекст для тюна модели. 
@@ -17,7 +17,7 @@
 Чат-бот работает на основе API Open AI GPT-3.5 Turbo и векторизированного контекста (см. дообучение на данных контекста в [ноутбуке](https://github.com/Psyhoved/MTS_chatbot/blob/main/AI_chat_bot_for_MTS.ipynb)) 
 ### Выполнен в рамках [AI Generative Product Hackathon](https://ai-hackathon.gigaschool.ru/), проходившего 4-19 августа 2023
 
-**Быстрый доступ** к макету чат-бота по [ссылке](http://158.160.4.169:8080/)
+**Быстрый доступ** к макету чат-бота по [ссылке](http://51.250.107.110:8080/)
 ![image](https://github.com/Psyhoved/MTS_chatbot/assets/83509449/719d6c6e-74ff-4441-bd60-6cbc143b8cc6)
 
 ### Команда - Hard work players
