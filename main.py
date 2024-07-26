@@ -1,3 +1,15 @@
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+
+from langchain.chat_models import ChatOpenAI
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, MessagesPlaceholder
+from langchain.chains import create_retrieval_chain, create_history_aware_retriever
+
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -7,19 +19,17 @@ from openai import OpenAI
 
 load_dotenv()
 
-# Инициализация клиента OpenAI
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ.get("OPEN_ROUTER_KEY"),
-)
-model = "mistralai/mistral-7b-instruct:free"
+# Load embedding model
+embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5",
+                                   encode_kwargs={"normalize_embeddings": True})
+# load vectorstore
+vectorstore = FAISS.load_local("faik_FAISS_store.db", embeddings, allow_dangerous_deserialization=True)
 
 # Создание экземпляра FastAPI
 app = FastAPI()
 
 # Словарь для хранения истории сообщений пользователей
 user_histories = {}
-
 
 # Модель данных для запроса
 class QuestionRequest(BaseModel):
