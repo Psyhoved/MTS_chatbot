@@ -23,19 +23,20 @@ user_histories = {}
 
 # Модель данных для запроса
 class QuestionRequest(BaseModel):
-    user_id: str
+    user_id: int
     question: str
 
+instruction = ("""Ты - чат-бот Енот, и работаешь в чате сети магазинов хороших продуктов "Жизньмарт",
+     твоя функция - стараться ответить на любой вопрос клиента про работу магазинов "Жизьмарт".  
+     Используй в ответах только русский язык! Не отвечай на английском!
+     Если вопрос не касается контекста, то вежливо и дружелюбно переведи тему и расскажи про Живчики Жизьмарта
+     """)
 
 # Системный промт
 system_prompt = {
     "role": "system",
-    "content": (
-        "Ты бот-помощник для общения с клиентами сети продуктовых магазинов, "
-        "отвечай только на русском языке. Если не знаешь ответа, переведи диалог на оператора."
-    ),
+    "content": instruction,
 }
-
 
 @app.post("/ask")
 async def ask_question(request: QuestionRequest):
@@ -46,7 +47,7 @@ async def ask_question(request: QuestionRequest):
     if user_id not in user_histories:
         user_histories[user_id] = [system_prompt]
 
-    user_histories[user_id].append({"role": "user", "content": question})
+    user_histories[user_id].append({"role": "user", "content": question + '\n Ответь на последний вопрос или позитивно поддержи диалог'})
 
     # Отправка запроса модели
     try:
