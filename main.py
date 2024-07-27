@@ -1,76 +1,36 @@
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-
-from langchain.chat_models import ChatOpenAI
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, MessagesPlaceholder
-from langchain.chains import create_retrieval_chain, create_history_aware_retriever
-
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
-import os
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from openai import OpenAI
 
-load_dotenv()
-
-# Load embedding model
-embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5",
-                                   encode_kwargs={"normalize_embeddings": True})
-# load vectorstore
-vectorstore = FAISS.load_local("faik_FAISS_store.db", embeddings, allow_dangerous_deserialization=True)
+from libs.llm_chat import create_chain, check_question
 
 # Создание экземпляра FastAPI
 app = FastAPI()
 
-# Словарь для хранения истории сообщений пользователей
-user_histories = {}
 
 # Модель данных для запроса
 class QuestionRequest(BaseModel):
-    user_id: int
+    user_id: str
     question: str
 
-instruction = ("""Ты - чат-бот Енот, и работаешь в чате сети магазинов хороших продуктов "Жизньмарт",
-     твоя функция - стараться ответить на любой вопрос клиента про работу магазинов "Жизьмарт".  
-     Используй в ответах только русский язык! Не отвечай на английском!
-     Если вопрос не касается контекста, то вежливо и дружелюбно переведи тему и расскажи про Живчики Жизьмарта
-     """)
 
-# Системный промт
-system_prompt = {
-    "role": "system",
-    "content": instruction,
-}
+# инициализация чат-бота
+chain = create_chain()
+
 
 @app.post("/ask")
 async def ask_question(request: QuestionRequest):
     user_id = request.user_id
-    question = request.question
-
-    # Получаем историю сообщений пользователя
-    if user_id not in user_histories:
-        user_histories[user_id] = [system_prompt]
-
-    user_histories[user_id].append({"role": "user", "content": question + '\n Ответь на последний вопрос или позитивно поддержи диалог'})
+    question = check_question(request.question)
+    if question == 'оператор':
+        return JSONResponse(content={"response": 'Перевожу на оператора...'})
+    elif question == 'спасибо':
+        return JSONResponse(content={"response": 'Всегда готовы помочь! Желаем Вам всего самого доброго! 💚'})
 
     # Отправка запроса модели
     try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=user_histories[user_id],
-            max_tokens=500,
-            temperature=1
-        )
 
-        response_content = response.choices[0].message.content
-
-        user_histories[user_id].append({"role": "assistant", "content": response_content})
+        response_content = chain.invoke({"input": question}, config={"configurable": {"session_id": user_id}})['answer']
 
         return JSONResponse(content={"response": response_content})
 
