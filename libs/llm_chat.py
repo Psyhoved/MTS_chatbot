@@ -184,7 +184,3 @@ def create_chain_no_memory():
     chain = create_retrieval_chain(retriever, doc_chain)
 
     return chain
-
-
-if __name__ == '__main__':
-    print(get_session_history('саша001'))
