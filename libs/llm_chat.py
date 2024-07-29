@@ -26,7 +26,7 @@ TEMPERATURE = 0.5
 
 
 def check_question(message: str) -> str:
-    # Примерный список матерных слов на русском языке
+    # Примерный список матерных слов на русском языке (закройте ушки)
     curse_words = [
         'хуй', 'пизда', 'ебать', 'ебаный', 'блядь', 'сука', 'пидор', 'гондон', 'мудак', 'сука', 'мразь', 'говно',
         'дерьмо', 'охуел', 'ебанулся', 'дурак', 'заебал'
@@ -113,7 +113,7 @@ def define_llm(api_key: str, api_base: str, model: str, max_tokens: int, tempera
     return llm
 
 
-def define_promt() -> ChatPromptTemplate:
+def define_promt(no_memory: bool = False) -> ChatPromptTemplate:
     system_prompt = """ Ты - чат-бот Енот, и работаешь в чате сети магазинов хороших продуктов "Жизньмарт",
     твоя функция - стараться ответить на любой вопрос клиента про работу магазинов "Жизьмарт".
     Используй в ответах только русский язык! Не отвечай на английском! Не используй слишком много смайликов.
@@ -126,13 +126,21 @@ def define_promt() -> ChatPromptTemplate:
     """
     # Если клиент доволен ответом на вопрос, например, говорит "спасибо", скажи "спасибо" и попрощайся.
 
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            MessagesPlaceholder("chat_history"),
-            ("human", "{input}"),
-        ]
-    )
+    if no_memory:
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_prompt),
+                ("human", "{input}"),
+            ]
+        )
+    else:
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ]
+        )
 
     return prompt
 
@@ -156,3 +164,15 @@ def create_chain():
     )
 
     return conversational_rag_chain
+
+
+def create_chain_no_memory():
+    llm = define_llm(API_KEY, API_BASE, MODEL, MAX_TOKENS, TEMPERATURE)
+    prompt = define_promt(no_memory=True)
+    retriever = load_vectorstore(VEC_STORE_LOAD_PATH).as_retriever()
+
+    doc_chain = create_stuff_documents_chain(llm, prompt)
+    # Create a chain
+    chain = create_retrieval_chain(retriever, doc_chain)
+
+    return chain
