@@ -1,3 +1,5 @@
+import pickle
+
 from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -17,7 +19,7 @@ from vectorstore import load_vectorstore
 load_dotenv()
 
 VEC_STORE_LOAD_PATH = "faik_FAISS_store.db"
-USER_STORY_BD_PATH = 'user_story_bd.json'
+USER_STORY_BD_PATH = 'user_story_bd.pickle'
 API_KEY = os.environ.get("OPEN_ROUTER_KEY")
 API_BASE = "https://openrouter.ai/api/v1"
 MODEL = "mistralai/mistral-7b-instruct:free"
@@ -65,17 +67,17 @@ def check_question(message: str) -> str:
 
 def load_store(store_path: str):
     if not os.path.exists(store_path):
-        with open(store_path, 'w') as f:
-            json.dump({}, f)
+        with open(store_path, 'wb') as f:
+            pickle.dump({}, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    with open(store_path, 'r') as f:
-        store = json.load(f)
+    with open(store_path, 'rb') as f:
+        store = pickle.load(f)
     return store
 
 
 def save_store(store: dict):
-    with open(USER_STORY_BD_PATH, 'w') as f:
-        json.dump(store, f)
+    with open(USER_STORY_BD_PATH, 'wb') as f:
+        pickle.dump(store, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
@@ -182,3 +184,7 @@ def create_chain_no_memory():
     chain = create_retrieval_chain(retriever, doc_chain)
 
     return chain
+
+
+if __name__ == '__main__':
+    print(get_session_history('саша001'))

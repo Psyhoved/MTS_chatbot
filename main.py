@@ -47,7 +47,9 @@ chain_no_memory = create_chain_no_memory()
 async def ask_mistral_7b_instruct(request: QuestionRequest):
     """
     Общение с ботом с учётом истории сообщений с пользователем. В промт идёт вся прошлая переписка.
+
     :param request:
+
     :return:
     """
     user_id = request.user_id
@@ -72,7 +74,9 @@ async def ask_mistral_7b_instruct(request: QuestionRequest):
 async def ask_mistral_7b_instruct(request: QuestionRequest):
     """
     Общение с ботом без учёта истории сообщений с пользователем. Каждый вопрос, как первый.
+
     :param request:
+
     :return:
     """
     # user_id = request.user_id
