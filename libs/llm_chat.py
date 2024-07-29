@@ -17,7 +17,7 @@ from vectorstore import load_vectorstore
 load_dotenv()
 
 VEC_STORE_LOAD_PATH = "faik_FAISS_store.db"
-USER_STORY_BD_PATH = 'user_story_bd_path.json'
+USER_STORY_BD_PATH = 'user_story_bd.json'
 API_KEY = os.environ.get("OPEN_ROUTER_KEY")
 API_BASE = "https://openrouter.ai/api/v1"
 MODEL = "mistralai/mistral-7b-instruct:free"
@@ -73,10 +73,16 @@ def load_store(store_path: str):
     return store
 
 
+def save_store(store: dict):
+    with open(USER_STORY_BD_PATH, 'w') as f:
+        json.dump(store, f)
+
+
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     store = load_store(USER_STORY_BD_PATH)
     if session_id not in store:
         store[session_id] = ChatMessageHistory()
+    save_store(store)
     return store[session_id]
 
 
