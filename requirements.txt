@@ -3,6 +3,7 @@ fastapi==0.111.0
 langchain==0.2.11
 langchain_community==0.2.10
 langchain_openai==0.1.19
+langchain_huggingface==0.0.3
 sentence_transformers==3.0.1
 pytest==8.3.2
 faiss_cpu==1.8.0
