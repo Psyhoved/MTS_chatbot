@@ -28,10 +28,6 @@ class QuestionRequest(BaseModel):
     question: str
 
 
-# инициализация чат-бота
-chain = create_chain()
-chain_no_memory = create_chain_no_memory()
-
 # проверка наличия векторстора с базой знаний
 bk_path = "База знаний фейк.pdf"
 vec_store_save_path = "faik_FAISS_store.db"
@@ -41,6 +37,10 @@ if not os.path.exists(vec_store_save_path):
     make_vectorstore(bk_path, vec_store_save_path)
 
 del bk_path, vec_store_save_path
+
+# инициализация чат-бота
+chain = create_chain()
+chain_no_memory = create_chain_no_memory()
 
 
 @app.post("/ask_mistral_7b_instruct")
