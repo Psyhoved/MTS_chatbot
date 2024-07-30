@@ -5,11 +5,10 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_retrieval_chain, create_history_aware_retriever
 
-from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.chat_message_histories import SQLChatMessageHistory
 
-import json
 import re
 import os
 from dotenv import load_dotenv
@@ -65,27 +64,8 @@ def check_question(message: str) -> str:
     return message
 
 
-def load_store(store_path: str):
-    if not os.path.exists(store_path):
-        with open(store_path, 'wb') as f:
-            pickle.dump({}, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-    with open(store_path, 'rb') as f:
-        store = pickle.load(f)
-    return store
-
-
-def save_store(store: dict):
-    with open(USER_STORY_BD_PATH, 'wb') as f:
-        pickle.dump(store, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    store = load_store(USER_STORY_BD_PATH)
-    if session_id not in store:
-        store[session_id] = ChatMessageHistory()
-    save_store(store)
-    return store[session_id]
+    return SQLChatMessageHistory(session_id, "sqlite:///memory.db")
 
 
 def get_history_aware_retriever(llm: ChatOpenAI):
@@ -124,7 +104,8 @@ def define_llm(api_key: str, api_base: str, model: str, max_tokens: int, tempera
 def define_promt(no_memory: bool = False) -> ChatPromptTemplate:
     system_prompt = """ Ты - чат-бот Енот, и работаешь в чате сети магазинов хороших продуктов "Жизньмарт",
     твоя функция - стараться ответить на любой вопрос клиента про работу магазинов "Жизьмарт".
-    Используй в ответах только русский язык! Не отвечай на английском! Не используй слишком много смайликов.
+    Используй в ответах только русский язык! Не отвечай на английском! 
+    Если клиент поздоровался с тобой, но не задал вопрос, поздоровайся и спроси, чем ему помочь.
     Если вопрос не касается контекста, то вежливо и дружелюбно переведи тему и расскажи про Живчики Жизьмарта.
 
     {context}

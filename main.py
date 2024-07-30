@@ -1,10 +1,11 @@
 import os
+import pickle
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from libs.llm_chat import create_chain, check_question, create_chain_no_memory
+from libs.llm_chat import create_chain, check_question, create_chain_no_memory, get_session_history
 
 description = """
 ## Версии
@@ -13,12 +14,15 @@ description = """
 - Добавлен ответ "спасибо" при завершении диалога.
 ### 0.0.2
 - Добавлена модель без учёта истории общения с пользователем (для тестов).
+### 0.0.3
+- Добавлено сохранение истории диалогов в базу данных SQLlite.
+- Исправлен баг с неадекватным ответом на приветствие
 """
 
 # Создание экземпляра FastAPI
 app = FastAPI(
     title="Чат-бот API Жизньмарт",
-    version="0.0.2",
+    version="0.0.3",
     description=description)
 
 
@@ -26,6 +30,10 @@ app = FastAPI(
 class QuestionRequest(BaseModel):
     user_id: str
     question: str
+
+
+class HistoryRequest(BaseModel):
+    user_id: str
 
 
 # проверка наличия векторстора с базой знаний
@@ -62,16 +70,16 @@ async def ask_mistral_7b_instruct(request: QuestionRequest):
     # Отправка запроса модели
     try:
 
-        response_content = chain.invoke({"input": question}, config={"configurable": {"session_id": user_id}})['answer']
+        response_content = chain.invoke({"input": question}, config={"configurable": {"session_id": user_id}})
 
-        return JSONResponse(content={"response": response_content})
+        return JSONResponse(content={"response": response_content['answer']})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/ask_mistral_7b_instruct_no_memory")
-async def ask_mistral_7b_instruct(request: QuestionRequest):
+async def ask_mistral_7b_instruct_no_memory(request: QuestionRequest):
     """
     Общение с ботом без учёта истории сообщений с пользователем. Каждый вопрос, как первый.
 
@@ -79,7 +87,6 @@ async def ask_mistral_7b_instruct(request: QuestionRequest):
 
     :return:
     """
-    # user_id = request.user_id
     question = check_question(request.question)
     if question == 'оператор':
         return JSONResponse(content={"response": 'Перевожу на оператора...'})
@@ -95,6 +102,14 @@ async def ask_mistral_7b_instruct(request: QuestionRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/get_history")
+async def get_history(request: HistoryRequest):
+    user_id = request.user_id
+    store = get_session_history(user_id)
+
+    return JSONResponse(content={"response": 'В разработке'})
 
 
 if __name__ == "__main__":
