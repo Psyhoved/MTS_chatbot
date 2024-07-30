@@ -64,8 +64,8 @@ def check_question(message: str) -> str:
     return message
 
 
-def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    return SQLChatMessageHistory(session_id, "sqlite:///memory.db")
+def get_session_history(session_id: str, conn_str2db: str = "sqlite:///memory.db") -> BaseChatMessageHistory:
+    return SQLChatMessageHistory(session_id, conn_str2db)
 
 
 def get_history_aware_retriever(llm: ChatOpenAI):

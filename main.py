@@ -1,9 +1,9 @@
 import os
-import pickle
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from langchain_core.messages import HumanMessage, AIMessage
 
 from libs.llm_chat import create_chain, check_question, create_chain_no_memory, get_session_history
 
@@ -107,9 +107,17 @@ async def ask_mistral_7b_instruct_no_memory(request: QuestionRequest):
 @app.post("/get_history")
 async def get_history(request: HistoryRequest):
     user_id = request.user_id
-    store = get_session_history(user_id)
+    session_history = get_session_history(user_id)
 
-    return JSONResponse(content={"response": 'В разработке'})
+    # Преобразование сообщений в список словарей
+    messages = []
+    for message in session_history.get_messages():
+        if isinstance(message, HumanMessage):
+            messages.append({"Human": message.content})
+        elif isinstance(message, AIMessage):
+            messages.append({"AI": message.content})
+
+    return JSONResponse(content={'user_id': user_id, "response": messages})
 
 
 if __name__ == "__main__":
