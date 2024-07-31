@@ -1,5 +1,4 @@
-import pickle
-
+from langchain_core.runnables import RunnableBinding
 from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -12,13 +11,16 @@ from langchain_community.chat_message_histories import SQLChatMessageHistory
 import re
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 
 from vectorstore import load_vectorstore
 
 load_dotenv()
 
-VEC_STORE_LOAD_PATH = "faik_FAISS_store.db"
-USER_STORY_BD_PATH = 'user_story_bd.pickle'
+# Определение корневого каталога проекта
+PROJECT_ROOT = Path(__file__).parent.parent.absolute()
+VEC_STORE_LOAD_PATH = Path.joinpath(PROJECT_ROOT, "faik_FAISS_store.db")
+USER_STORY_BD_PATH = Path.joinpath(PROJECT_ROOT, 'user_story_bd.pickle')
 API_KEY = os.environ.get("OPEN_ROUTER_KEY")
 API_BASE = "https://openrouter.ai/api/v1"
 MODEL = "mistralai/mistral-7b-instruct:free"
@@ -90,18 +92,18 @@ def get_session_history(session_id: str, conn_str2db: str = "sqlite:///memory.db
     return SQLChatMessageHistory(session_id, conn_str2db)
 
 
-def get_history_aware_retriever(llm: ChatOpenAI):
+def get_history_aware_retriever(llm: ChatOpenAI, vec_store_path: str | Path = VEC_STORE_LOAD_PATH) -> RunnableBinding:
     """
     Создает и возвращает ретривер, учитывающий историю чата.
 
     Args:
         llm (ChatOpenAI): Языковая модель.
-
+        vec_store_path(str): путь к векторному хранилищу базы знаний
     Returns:
         HistoryAwareRetriever: Ретривер, который учитывает историю чата.
     """
 
-    retriever = load_vectorstore(VEC_STORE_LOAD_PATH).as_retriever()
+    retriever = load_vectorstore(vec_store_path).as_retriever()
 
     contextualize_q_system_prompt = """Учитывая историю чата и последний вопрос пользователя, \
     который может ссылаться на контекст в истории чата, сформулируй отдельный вопрос, \
@@ -160,13 +162,13 @@ def define_promt(no_memory: bool = False) -> ChatPromptTemplate:
     system_prompt = """ Ты - чат-бот Енот, и работаешь в чате сети магазинов хороших продуктов "Жизньмарт",
     твоя функция - стараться ответить на любой вопрос клиента про работу магазинов "Жизьмарт".
     Используй в ответах только русский язык! Не отвечай на английском! 
-    Если клиент поздоровался с тобой, но не задал вопрос, поздоровайся и спроси, чем ему помочь.
     Если вопрос не касается контекста, то вежливо и дружелюбно переведи тему и расскажи про Живчики Жизьмарта.
 
     {context}
 
     Используй только этот контекст, чтобы ответить на последний вопрос.
     Если ответа нет в контексте, просто позитивно поддержи диалог на тему Жизньмарта!
+    Если клиент поздоровался с тобой, но НЕ ЗАДАЛ вопрос, тогда поздоровайся и спроси, чем ему помочь!
     """
     # Если клиент доволен ответом на вопрос, например, говорит "спасибо", скажи "спасибо" и попрощайся.
 
@@ -189,7 +191,7 @@ def define_promt(no_memory: bool = False) -> ChatPromptTemplate:
     return prompt
 
 
-def create_chain():
+def create_chain() -> RunnableWithMessageHistory:
     """
         Создает и возвращает цепочку обработки запросов с учетом истории чата.
 

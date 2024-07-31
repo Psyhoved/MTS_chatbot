@@ -1,22 +1,18 @@
 import pytest
-from unittest.mock import patch, MagicMock
-import re
 import os
 import sys
 
 from langchain_core.messages import HumanMessage, AIMessage
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text
+from sqlalchemy import create_engine, MetaData
 from langchain_openai import ChatOpenAI
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.chains import create_retrieval_chain, create_history_aware_retriever
-from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import SQLChatMessageHistory
+from langchain_core.runnables import RunnableBinding
 
 # Добавьте корневую директорию проекта в sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from libs.llm_chat import (check_question, get_session_history,
+from libs.llm_chat import (check_question,
                            get_history_aware_retriever, define_llm,
                            define_promt, create_chain, create_chain_no_memory,
                            VEC_STORE_LOAD_PATH, API_KEY, API_BASE, MODEL,
@@ -29,12 +25,6 @@ def setup_test_db():
     test_db_path = 'sqlite:///test_memory.db'
     engine = create_engine(test_db_path)
     metadata = MetaData()
-
-    # Определяем таблицы
-    chat_history = Table('chat_history', metadata,
-                         Column('id', Integer, primary_key=True),
-                         Column('session_id', String, index=True),
-                         Column('message', Text))
 
     metadata.create_all(engine)
 
@@ -78,3 +68,40 @@ def test_get_session_history(setup_test_db):
     assert len(messages) == 2
     assert messages[0].content == 'Test message 1'
     assert messages[1].content == 'Test message 2'
+
+
+def test_define_llm():
+    llm = define_llm(API_KEY, API_BASE, MODEL, 10, 0)
+
+    assert isinstance(llm, ChatOpenAI)
+
+    if MODEL == "mistralai/mistral-7b-instruct:free":
+        assert llm.invoke('Привет!').content == "Привет! Как могу помочь"
+
+
+def test_get_history_aware_retriever():
+    llm = define_llm(API_KEY, API_BASE, MODEL, MAX_TOKENS, TEMPERATURE)
+
+    history_aware_retriever = get_history_aware_retriever(llm, VEC_STORE_LOAD_PATH)
+    assert isinstance(history_aware_retriever, RunnableBinding)
+
+
+def test_define_promt():
+    prompt = define_promt()
+    assert isinstance(prompt, ChatPromptTemplate)
+
+    prompt_no_memory = define_promt(no_memory=True)
+    assert isinstance(prompt_no_memory, ChatPromptTemplate)
+    assert "chat_history" not in prompt_no_memory.input_variables
+
+
+def test_create_chain():
+    conversational_rag_chain = create_chain()
+    assert isinstance(conversational_rag_chain, RunnableWithMessageHistory)
+    assert 'get_session_history' in conversational_rag_chain.__dict__.keys()
+
+
+def test_create_chain_no_memory():
+    chain = create_chain_no_memory()
+    assert isinstance(chain, RunnableBinding)
+    assert 'get_session_history' not in chain.__dict__.keys()

@@ -2,17 +2,18 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+from pathlib import Path
 
 
-def make_vectorstore(base_knowledge_path: str, vectorstore_save_path: str) -> None:
+def make_vectorstore(base_knowledge_path: str | Path, vectorstore_save_path: str | Path) -> None:
     """
     Создание и сохранение векторного хранилища из базы знаний в формате PDF документа.
 
     Параметры
     ----------
-    base_knowledge_path : str
+    base_knowledge_path : str или Path
         Путь к PDF документу, который будет загружен.
-    vectorstore_save_path : str
+    vectorstore_save_path : str или Path
         Путь, по которому будет сохранено векторное хранилище.
 
     Возвращает
@@ -46,13 +47,13 @@ def make_vectorstore(base_knowledge_path: str, vectorstore_save_path: str) -> No
     vectorstore.save_local(vectorstore_save_path)
 
 
-def load_vectorstore(vectorstore_load_path: str) -> FAISS:
+def load_vectorstore(vectorstore_load_path: str | Path) -> FAISS:
     """
     Загрузка векторного хранилища из файла.
 
     Параметры
     ----------
-    vectorstore_load_path : str
+    vectorstore_load_path : str или Path
         Путь к файлу, из которого будет загружено векторное хранилище.
 
     Возвращает
