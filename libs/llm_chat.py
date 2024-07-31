@@ -27,6 +27,17 @@ TEMPERATURE = 0.5
 
 
 def check_question(message: str) -> str:
+    """
+    Проверяет сообщение на наличие матерных слов, запросов к оператору и благодарностей.
+
+    Args:
+        message (str): Входящее сообщение пользователя.
+
+    Returns:
+        str: "оператор" если обнаружены матерные слова или запрос к оператору,
+         "спасибо" если сообщение является благодарностью, иначе возвращает исходное сообщение.
+    """
+
     # Примерный список матерных слов на русском языке (закройте ушки)
     curse_words = [
         'хуй', 'пизда', 'ебать', 'ебаный', 'блядь', 'сука', 'пидор', 'гондон', 'мудак', 'сука', 'мразь', 'говно',
@@ -65,10 +76,31 @@ def check_question(message: str) -> str:
 
 
 def get_session_history(session_id: str, conn_str2db: str = "sqlite:///memory.db") -> BaseChatMessageHistory:
+    """
+    Возвращает историю сообщений для заданной сессии.
+
+    Args:
+        session_id (str): Идентификатор сессии.
+        conn_str2db (str, optional): Строка подключения к базе данных. По умолчанию "sqlite:///memory.db".
+
+    Returns:
+        BaseChatMessageHistory: Объект истории сообщений чата.
+    """
+
     return SQLChatMessageHistory(session_id, conn_str2db)
 
 
 def get_history_aware_retriever(llm: ChatOpenAI):
+    """
+    Создает и возвращает ретривер, учитывающий историю чата.
+
+    Args:
+        llm (ChatOpenAI): Языковая модель.
+
+    Returns:
+        HistoryAwareRetriever: Ретривер, который учитывает историю чата.
+    """
+
     retriever = load_vectorstore(VEC_STORE_LOAD_PATH).as_retriever()
 
     contextualize_q_system_prompt = """Учитывая историю чата и последний вопрос пользователя, \
@@ -93,6 +125,20 @@ def get_history_aware_retriever(llm: ChatOpenAI):
 
 
 def define_llm(api_key: str, api_base: str, model: str, max_tokens: int, temperature: float) -> ChatOpenAI:
+    """
+        Определяет и возвращает языковую модель.
+
+    Args:
+        api_key (str): API ключ для доступа к модели.
+        api_base (str): Базовый URL для доступа к API.
+        model (str): Имя модели.
+        max_tokens (int): Максимальное количество токенов для генерации.
+        temperature (float): Температура генерации текста.
+
+    Returns:
+        ChatOpenAI: Языковая модель.
+    """
+
     llm = ChatOpenAI(openai_api_key=api_key,
                      openai_api_base=api_base,
                      model_name=model,
@@ -102,6 +148,15 @@ def define_llm(api_key: str, api_base: str, model: str, max_tokens: int, tempera
 
 
 def define_promt(no_memory: bool = False) -> ChatPromptTemplate:
+    """
+    Определяет и возвращает системный промт.
+
+    Args:
+        no_memory (bool, optional): Указывает, использовать ли историю сообщений. По умолчанию False.
+
+    Returns:
+        ChatPromptTemplate: Системный промт.
+    """
     system_prompt = """ Ты - чат-бот Енот, и работаешь в чате сети магазинов хороших продуктов "Жизньмарт",
     твоя функция - стараться ответить на любой вопрос клиента про работу магазинов "Жизьмарт".
     Используй в ответах только русский язык! Не отвечай на английском! 
@@ -135,6 +190,12 @@ def define_promt(no_memory: bool = False) -> ChatPromptTemplate:
 
 
 def create_chain():
+    """
+        Создает и возвращает цепочку обработки запросов с учетом истории чата.
+
+    Returns:
+        RunnableWithMessageHistory: Цепочка обработки запросов с учетом истории чата.
+    """
     llm = define_llm(API_KEY, API_BASE, MODEL, MAX_TOKENS, TEMPERATURE)
     prompt = define_promt()
 
@@ -156,6 +217,13 @@ def create_chain():
 
 
 def create_chain_no_memory():
+    """
+    Создает и возвращает цепочку обработки запросов без учета истории чата.
+
+    Returns:
+        RetrievalChain: Цепочка обработки запросов без учета истории чата.
+    """
+
     llm = define_llm(API_KEY, API_BASE, MODEL, MAX_TOKENS, TEMPERATURE)
     prompt = define_promt(no_memory=True)
     retriever = load_vectorstore(VEC_STORE_LOAD_PATH).as_retriever()
